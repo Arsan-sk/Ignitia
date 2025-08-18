@@ -10,12 +10,13 @@ import Events from "@/pages/events";
 import CreateEvent from "@/pages/create-event";
 import Login from "@/pages/auth/login";
 import Register from "@/pages/auth/register";
+import Landing from "@/pages/landing";
 import NotFound from "@/pages/not-found";
 
 function Router() {
   return (
     <Switch>
-      <Route path="/" component={Dashboard} />
+      <Route path="/" component={Landing} />
       <Route path="/dashboard" component={Dashboard} />
       <Route path="/events" component={Events} />
       <Route path="/create-event" component={CreateEvent} />

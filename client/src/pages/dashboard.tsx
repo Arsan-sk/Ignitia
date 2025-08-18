@@ -1,16 +1,15 @@
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Plus, Play } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/hooks/use-auth";
 import { useQuery } from "@tanstack/react-query";
 import { Link, Redirect } from "wouter";
 import Navbar from "@/components/layout/navbar";
-import Sidebar from "@/components/layout/sidebar";
-import WelcomeSection from "@/components/dashboard/welcome-section";
-import EventCard from "@/components/dashboard/event-card";
-import Leaderboard from "@/components/dashboard/leaderboard";
-import ActivityFeed from "@/components/dashboard/activity-feed";
-import Achievements from "@/components/dashboard/achievements";
+import { 
+  Trophy, Users, Calendar, Target, TrendingUp, Star, 
+  Plus, Award, Activity, MapPin, Clock, ChevronRight,
+  BookOpen, Code, Zap
+} from "lucide-react";
 
 export default function Dashboard() {
   const { user, isLoading: authLoading } = useAuth();
@@ -28,154 +27,304 @@ export default function Dashboard() {
     return <Redirect to="/login" />;
   }
 
-  return (
-    <div className="min-h-screen bg-light-bg dark:bg-dark-bg theme-transition">
-      <Navbar />
-      
-      <div className="flex">
-        <Sidebar />
-        
-        <main className="flex-1 overflow-hidden">
-          {/* Tab Navigation */}
-          <div className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">
-            <div className="px-6">
-              <Tabs defaultValue="dashboard" className="w-full">
-                <TabsList className="h-auto p-0 bg-transparent border-none">
-                  <TabsTrigger
-                    value="dashboard"
-                    className="py-4 px-2 border-b-2 border-light-primary dark:border-dark-primary text-light-primary dark:text-dark-primary data-[state=inactive]:border-transparent data-[state=inactive]:text-gray-500"
-                  >
-                    Dashboard
-                  </TabsTrigger>
-                  <TabsTrigger
-                    value="events"
-                    className="py-4 px-2 border-b-2 data-[state=active]:border-light-primary data-[state=active]:dark:border-dark-primary data-[state=active]:text-light-primary data-[state=active]:dark:text-dark-primary data-[state=inactive]:border-transparent data-[state=inactive]:text-gray-500"
-                  >
-                    My Events
-                  </TabsTrigger>
-                  <TabsTrigger
-                    value="teams"
-                    className="py-4 px-2 border-b-2 data-[state=active]:border-light-primary data-[state=active]:dark:border-dark-primary data-[state=active]:text-light-primary data-[state=active]:dark:text-dark-primary data-[state=inactive]:border-transparent data-[state=inactive]:text-gray-500"
-                  >
-                    Teams
-                  </TabsTrigger>
-                  <TabsTrigger
-                    value="profile"
-                    className="py-4 px-2 border-b-2 data-[state=active]:border-light-primary data-[state=active]:dark:border-dark-primary data-[state=active]:text-light-primary data-[state=active]:dark:text-dark-primary data-[state=inactive]:border-transparent data-[state=inactive]:text-gray-500"
-                  >
-                    Profile
-                  </TabsTrigger>
-                </TabsList>
-
-                <TabsContent value="dashboard" className="p-6 space-y-6 bg-gray-50 dark:bg-gray-800 min-h-screen">
-                  <WelcomeSection />
-
-                  {/* Active Events Grid */}
-                  <div>
-                    <div className="flex items-center justify-between mb-6">
-                      <h2 className="text-2xl font-space font-bold text-gray-900 dark:text-gray-100">Active Events</h2>
-                      <Link href="/events">
-                        <Button className="bg-light-primary dark:bg-dark-primary hover:bg-blue-700 dark:hover:bg-purple-700">
-                          <Plus className="w-4 h-4 mr-2" />
-                          Join Event
-                        </Button>
-                      </Link>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                      {isLoading ? (
-                        [...Array(3)].map((_, i) => (
-                          <div key={i} className="bg-white dark:bg-gray-900 rounded-xl p-6 animate-pulse">
-                            <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded mb-4"></div>
-                            <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded mb-2"></div>
-                            <div className="h-12 bg-gray-200 dark:bg-gray-700 rounded mb-4"></div>
-                            <div className="h-2 bg-gray-200 dark:bg-gray-700 rounded"></div>
-                          </div>
-                        ))
-                      ) : (dashboardData as any)?.events?.length > 0 ? (
-                        (dashboardData as any).events.map((event: any) => (
-                          <EventCard
-                            key={event.id}
-                            event={event}
-                            progress={Math.floor(Math.random() * 100)} // Mock progress
-                            roundInfo="Round 2/3" // Mock round info
-                            teamName="CodeCrafters" // Mock team name
-                          />
-                        ))
-                      ) : (
-                        <div className="col-span-full text-center py-12">
-                          <p className="text-gray-500 mb-4">No active events found</p>
-                          <Link href="/events">
-                            <Button className="bg-light-primary dark:bg-dark-primary">
-                              Browse Events
-                            </Button>
-                          </Link>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Leaderboard & Social Feed Section */}
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    <Leaderboard />
-                    <ActivityFeed />
-                  </div>
-
-                  {/* Achievements & Badges Section */}
-                  <Achievements />
-
-                  {/* Event Creation CTA */}
-                  <div className="bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 dark:from-purple-600 dark:via-pink-600 dark:to-red-500 rounded-2xl p-8 text-white text-center">
-                    <h3 className="text-2xl font-space font-bold mb-4">Ready to Host Your Own Event?</h3>
-                    <p className="text-indigo-100 dark:text-purple-100 mb-6 max-w-2xl mx-auto">
-                      Create hackathons, conferences, meetups, and competitions with our powerful platform. Engage your community and build lasting connections.
-                    </p>
-                    <div className="flex flex-col sm:flex-row justify-center space-y-3 sm:space-y-0 sm:space-x-4">
-                      <Link href="/create-event">
-                        <Button className="bg-white text-indigo-600 hover:bg-gray-100">
-                          <Plus className="w-4 h-4 mr-2" />
-                          Create Event
-                        </Button>
-                      </Link>
-                      <Button variant="outline" className="border-white text-white hover:bg-white/10">
-                        <Play className="w-4 h-4 mr-2" />
-                        Watch Demo
-                      </Button>
-                    </div>
-                  </div>
-                </TabsContent>
-
-                <TabsContent value="events" className="p-6">
-                  <div className="text-center py-12">
-                    <p className="text-gray-500">Events tab content coming soon...</p>
-                  </div>
-                </TabsContent>
-
-                <TabsContent value="teams" className="p-6">
-                  <div className="text-center py-12">
-                    <p className="text-gray-500">Teams tab content coming soon...</p>
-                  </div>
-                </TabsContent>
-
-                <TabsContent value="profile" className="p-6">
-                  <div className="text-center py-12">
-                    <p className="text-gray-500">Profile tab content coming soon...</p>
-                  </div>
-                </TabsContent>
-              </Tabs>
+  // Role-based dashboard rendering
+  const renderParticipantDashboard = () => (
+    <div className="max-w-7xl mx-auto p-6 space-y-8">
+      {/* Welcome Section */}
+      <div className="bg-gradient-to-r from-blue-600 via-purple-600 to-teal-600 rounded-2xl p-8 text-white">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold mb-2">
+              Welcome back, {user.firstName}! 👋
+            </h1>
+            <p className="text-blue-100 text-lg">
+              Ready to innovate? Discover new challenges and showcase your skills.
+            </p>
+          </div>
+          <div className="text-right">
+            <div className="bg-white/20 backdrop-blur-sm rounded-lg p-4">
+              <div className="text-2xl font-bold">1,250</div>
+              <div className="text-sm text-blue-100">Total Points</div>
             </div>
           </div>
-        </main>
+        </div>
       </div>
 
-      {/* Floating Action Button (Mobile) */}
-      <div className="fixed bottom-6 right-6 lg:hidden">
-        <Link href="/create-event">
-          <Button className="w-14 h-14 bg-gradient-to-r from-light-primary to-purple-600 dark:from-dark-primary dark:to-teal-500 rounded-full shadow-lg hover:shadow-xl">
-            <Plus className="w-6 h-6" />
-          </Button>
-        </Link>
+      <div className="grid lg:grid-cols-3 gap-8">
+        {/* Main Content */}
+        <div className="lg:col-span-2 space-y-6">
+          {/* Quick Actions */}
+          <div className="grid md:grid-cols-2 gap-6">
+            <Link href="/events">
+              <Card className="hover:shadow-lg transition-all cursor-pointer group">
+                <CardContent className="p-6">
+                  <div className="flex items-center space-x-4">
+                    <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
+                      <Calendar className="w-6 h-6 text-white" />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-lg">Discover Events</h3>
+                      <p className="text-gray-500 text-sm">Find hackathons & competitions</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </Link>
+
+            <Card className="hover:shadow-lg transition-all cursor-pointer group">
+              <CardContent className="p-6">
+                <div className="flex items-center space-x-4">
+                  <div className="w-12 h-12 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <Users className="w-6 h-6 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-lg">Find Team</h3>
+                    <p className="text-gray-500 text-sm">Connect with innovators</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Active Events */}
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between">
+              <CardTitle className="flex items-center space-x-2">
+                <Activity className="w-5 h-5" />
+                <span>Your Active Events</span>
+              </CardTitle>
+              <Link href="/events">
+                <Button variant="outline" size="sm">View All</Button>
+              </Link>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {[1, 2].map((i) => (
+                  <div key={i} className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800">
+                    <div className="flex items-center space-x-4">
+                      <div className="w-10 h-10 bg-gradient-to-r from-green-500 to-teal-500 rounded-lg flex items-center justify-center">
+                        <Code className="w-5 h-5 text-white" />
+                      </div>
+                      <div>
+                        <h4 className="font-medium">TechCrunch Hackathon {i}</h4>
+                        <p className="text-sm text-gray-500">Round 2 • Due in 3 days</p>
+                      </div>
+                    </div>
+                    <ChevronRight className="w-5 h-5 text-gray-400" />
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Sidebar */}
+        <div className="space-y-6">
+          {/* Stats */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg flex items-center space-x-2">
+                <Trophy className="w-5 h-5" />
+                <span>Your Stats</span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex justify-between items-center">
+                <span className="text-gray-600">Global Rank</span>
+                <Badge className="bg-gradient-to-r from-yellow-400 to-orange-500 text-white">#127</Badge>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-gray-600">Events Won</span>
+                <span className="font-semibold">3</span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-gray-600">Submissions</span>
+                <span className="font-semibold">12</span>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Achievements */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg flex items-center space-x-2">
+                <Award className="w-5 h-5" />
+                <span>Recent Achievements</span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                {['First Place Winner', 'Team Player', 'Innovation Master'].map((achievement, i) => (
+                  <div key={i} className="flex items-center space-x-3">
+                    <div className="w-8 h-8 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full flex items-center justify-center">
+                      <Star className="w-4 h-4 text-white" />
+                    </div>
+                    <span className="text-sm font-medium">{achievement}</span>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
       </div>
+    </div>
+  );
+
+  const renderOrganizerDashboard = () => (
+    <div className="max-w-7xl mx-auto p-6 space-y-8">
+      {/* Welcome Section */}
+      <div className="bg-gradient-to-r from-purple-600 via-blue-600 to-teal-600 rounded-2xl p-8 text-white">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold mb-2">
+              Hello {user.firstName}! 🚀
+            </h1>
+            <p className="text-purple-100 text-lg">
+              Manage your events and engage with your community.
+            </p>
+          </div>
+          <Link href="/create-event">
+            <Button className="bg-white text-purple-600 hover:bg-gray-100">
+              <Plus className="w-4 h-4 mr-2" />
+              Create Event
+            </Button>
+          </Link>
+        </div>
+      </div>
+
+      <div className="grid lg:grid-cols-3 gap-8">
+        {/* Main Content */}
+        <div className="lg:col-span-2 space-y-6">
+          {/* Quick Stats */}
+          <div className="grid md:grid-cols-3 gap-6">
+            <Card>
+              <CardContent className="p-6 text-center">
+                <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-lg flex items-center justify-center mx-auto mb-3">
+                  <Calendar className="w-6 h-6 text-white" />
+                </div>
+                <div className="text-2xl font-bold mb-1">5</div>
+                <div className="text-gray-500 text-sm">Active Events</div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardContent className="p-6 text-center">
+                <div className="w-12 h-12 bg-gradient-to-r from-green-500 to-teal-500 rounded-lg flex items-center justify-center mx-auto mb-3">
+                  <Users className="w-6 h-6 text-white" />
+                </div>
+                <div className="text-2xl font-bold mb-1">847</div>
+                <div className="text-gray-500 text-sm">Total Participants</div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardContent className="p-6 text-center">
+                <div className="w-12 h-12 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg flex items-center justify-center mx-auto mb-3">
+                  <TrendingUp className="w-6 h-6 text-white" />
+                </div>
+                <div className="text-2xl font-bold mb-1">94%</div>
+                <div className="text-gray-500 text-sm">Success Rate</div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* My Events */}
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between">
+              <CardTitle className="flex items-center space-x-2">
+                <Target className="w-5 h-5" />
+                <span>Your Events</span>
+              </CardTitle>
+              <Link href="/create-event">
+                <Button className="bg-gradient-to-r from-blue-600 to-purple-600 text-white">
+                  <Plus className="w-4 h-4 mr-2" />
+                  Create New
+                </Button>
+              </Link>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {[1, 2, 3].map((i) => (
+                  <div key={i} className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800">
+                    <div className="flex items-center space-x-4">
+                      <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-500 rounded-lg flex items-center justify-center">
+                        <Zap className="w-5 h-5 text-white" />
+                      </div>
+                      <div>
+                        <h4 className="font-medium">Innovation Challenge {i}</h4>
+                        <div className="flex items-center space-x-4 text-sm text-gray-500">
+                          <span className="flex items-center space-x-1">
+                            <Users className="w-4 h-4" />
+                            <span>124 participants</span>
+                          </span>
+                          <span className="flex items-center space-x-1">
+                            <Clock className="w-4 h-4" />
+                            <span>5 days left</span>
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                    <Button variant="outline" size="sm">Manage</Button>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Sidebar */}
+        <div className="space-y-6">
+          {/* Recent Activity */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg flex items-center space-x-2">
+                <Activity className="w-5 h-5" />
+                <span>Recent Activity</span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                {['New registration for TechFest', 'Submission deadline approaching', 'Team formed for Challenge 2'].map((activity, i) => (
+                  <div key={i} className="text-sm">
+                    <div className="font-medium">{activity}</div>
+                    <div className="text-gray-500">2 hours ago</div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Quick Tools */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">Quick Tools</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <Button variant="outline" className="w-full justify-start">
+                <BookOpen className="w-4 h-4 mr-2" />
+                Analytics
+              </Button>
+              <Button variant="outline" className="w-full justify-start">
+                <Award className="w-4 h-4 mr-2" />
+                Certificates
+              </Button>
+              <Button variant="outline" className="w-full justify-start">
+                <Users className="w-4 h-4 mr-2" />
+                Manage Teams
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    </div>
+  );
+
+  return (
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      <Navbar />
+      <main>
+        {user.role === 'organizer' ? renderOrganizerDashboard() : renderParticipantDashboard()}
+      </main>
     </div>
   );
 }
