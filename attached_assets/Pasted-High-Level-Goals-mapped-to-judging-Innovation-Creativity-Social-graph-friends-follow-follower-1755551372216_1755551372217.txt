@@ -1,0 +1,240 @@
+High-Level Goals (mapped to judging)
+
+Innovation & Creativity: Social graph (friends/follow/followers), team history, global & scoped leaderboards, badges/POAP — moves beyond “just an event tool.”
+
+Functionality: Full workflows: creation → registration/team → round submissions → results → certs.
+
+Scalability: Multi-tenant (many orgs & events), real-time, queue-based processing; 1000+ users/events.
+
+Tech Integration: Azure SQL + MongoDB; Azure Web App/Functions/Storage; optional AI similarity, analytics, POAP.
+
+UI/UX: Modular dashboards; event-local sub-tabs keep the main app clean.
+
+System Overview (component map)
+
+Frontends
+
+Web App (SPA/SSR): Next.js/React hosted on Azure Web App. Public site + authenticated dashboards (Organizer, Participant, Sponsor). Event pages have their own sub-navigation.
+
+Admin Console: feature-gated routes for platform admins.
+
+API & BFF Layer
+
+API Gateway: Azure API Management (rate limits, keys).
+
+BFF (Backend-for-Frontend): Node/NestJS (or FastAPI) composing microservices for each role’s screens.
+
+Core Microservices (modular; can ship as a modular monolith if time-boxed)
+
+Identity & Access Service
+
+Azure AD B2C (email + social login), JWT; roles: Organizer, Participant, Sponsor, Admin (Judging is handled by Organizer for transparency).
+
+Organization Service
+
+Org profiles, followers, verification, sponsors list.
+
+Event Service
+
+Create Event (single-page dynamic form by type: Hackathon/Conference/Meetup/Fest); rounds config (count, names, timelines, rules).
+
+Registration & Teaming Service
+
+Individual/team registration, invite friends, join existing team for that event; team roster per event.
+
+Submission & Forms Service
+
+Built-in round forms (dynamic fields: uploads, links, text) or External link mode (Google Form/Discord). Time-boxed enable/disable; visible only to qualified teams.
+
+Rounds & Progression Orchestrator
+
+Locks/unlocks rounds, advances teams (✅/❌), handles timestamps; timer jobs on Azure Functions.
+
+Evaluation & Leaderboard Service
+
+Prelim rounds: lightweight points + advance/eliminate; Final: weighted rubric → auto ranking; event-local leaderboard + global leaderboard across events.
+
+Announcements & Q&A (Community)
+
+Real-time feed per event; organizer posts; participant Q&A (threaded).
+
+Profiles & Social Graph Service
+
+User profiles (banner, avatar, bio, skills), friends/connect + follow, team history, wins, badges; search & suggestions.
+
+Certificates Service (bonus, now core)
+
+Auto-generate PDFs from templates; post to profile; “Add to LinkedIn” link.
+
+Similarity/Plagiarism Service (bonus, now core)
+
+AI similarity checks across text/repos/assets using embeddings; flags for review.
+
+Analytics Service (bonus, now core)
+
+Organizer dashboards: registrations funnel, submission heatmaps, sponsor impressions, engagement.
+
+POAP/NFT Badges Service (bonus, now core)
+
+Optional mint on a low-fee chain; store badge refs; show in profile.
+
+Notifications Service
+
+Email/SMS/push for round opens, announcements, results; Azure Communication Services.
+
+Real-Time & Async
+
+Azure Web PubSub (SignalR compatible) for announcements, Q&A, live leaderboards.
+
+Azure Functions / Queues for scheduled round switches, certificate batch jobs, similarity jobs, webhook ingestion.
+
+Storage
+
+Azure SQL Database: structured relational (users, orgs, events, rounds, registrations, teams, roles, scoring, leaderboards, certificates index).
+
+MongoDB (on Azure): unstructured/flexible (submission payloads, dynamic form schemas, Q&A threads, announcement feed, embeddings cache, audit blobs).
+
+Azure Blob Storage: project files (PDF/ZIP/images), video placeholder thumbnails; CDN fronted.
+
+Ops & Security
+
+Azure Front Door + CDN, WAF; Key Vault; App Config; Application Insights; CI/CD via GitHub Actions; multi-tenant guardrails & RBAC.
+
+Data Model (pragmatic)
+
+Azure SQL (relational)
+
+users(id, handle, name, email, role, university_id, created_at, …)
+
+orgs(id, handle, name, verified, …)
+
+org_followers(org_id, user_id)
+
+events(id, org_id, type, mode, title, description, start_at, end_at, registration_type, status, …)
+
+event_tracks(event_id, name)
+
+event_rounds(id, event_id, name, description, start_at, end_at, scoring_mode, weights_json) (weights for final)
+
+registrations(id, event_id, user_id, status)
+
+teams(id, event_id, name, created_by)
+
+team_members(team_id, user_id, role)
+
+round_access(round_id, team_id, is_unlocked)
+
+scores(round_id, team_id, judge_id NULL, points, rubric_json NULL) (final uses rubric)
+
+leaderboards(event_id, snapshot_json, published_at)
+
+badges(user_id, badge_type, source_event_id, metadata)
+
+certificates(id, event_id, user_id/team_id, type, url, issued_at)
+
+MongoDB (flexible/unstructured)
+
+forms: {event_id, round_id, mode: 'builtin'|'external', schema, external_url}
+
+submissions: {event_id, round_id, team_id, payload:{links, files}, timestamp}
+
+announcements: {event_id, author_id, body, media[], ts}
+
+qna_threads: {event_id, title, posts:[{author_id, body, ts}]}
+
+profiles_extra: {user_id, bio_long, skills[], socials{}, highlights[]}
+
+similarity_jobs: {submission_id, status, result:{matches[]}}
+
+analytics_events: {actor_id, type, event_id, ts, props}
+
+Key Workflows (sequence)
+1) Create Event (single-page dynamic)
+
+Organizer fills common fields → selects Hackathon/Conference/Meetup/Fest.
+
+Form expands with mode-specific fields (Hackathon adds # rounds, each with times, submission formats, scoring type).
+
+Save → Event + Rounds in SQL; Forms schema in Mongo; blob containers provisioned.
+
+2) Registration & Teaming (with social graph)
+
+Register as individual or create/join team for that event; invite friends/followers; team object scoped to event.
+
+3) Round Orchestration
+
+Azure Function checks timelines → unlock/lock rounds, sets visibility for qualified teams, triggers notifications.
+
+4) Submissions
+
+If Built-in: render dynamic form → payload stored in Mongo; files to Blob; SQL index row created.
+
+If External: show “Submit externally” button; optional webhook/CSV import to sync timestamps.
+
+5) Evaluation & Results
+
+Prelim: Organizer assigns simple points and/or ✅ advance flags.
+
+Final: Organizer enters rubric scores (with weights per criterion) → service auto-ranks → publishes event leaderboard.
+
+6) Transparency
+
+Event page shows round status, submission timestamps, qualified flags; final shows ranked list & marks.
+
+7) Certificates
+
+On finalize, Function batch-generates certificate PDFs from HTML template, stores in Blob; profile updates; “Add to LinkedIn” link shown.
+
+8) Global Leaderboard & Badges
+
+After each event, aggregate points → update user global rank; mint badges/POAP (optional) and attach to profile.
+
+Real-Time & Notifications
+
+Azure Web PubSub: announcements, Q&A, live leaderboard ticks.
+
+Azure Communication Services: email/SMS for round open/close, results, invites.
+
+Security, Multi-Tenancy, and Privacy
+
+Tenant boundary at org_id (row-level filters); event scoping everywhere.
+
+RBAC per role (Organizer/Participant/Sponsor/Admin).
+
+Private blobs with short-lived SAS URLs; size & type validation.
+
+Audit logs (Mongo) + App Insights traces.
+
+Deployment Topology (Azure)
+
+Azure Web App: Next.js (frontend) + BFF/API.
+
+Azure SQL Database + MongoDB (Atlas on Azure).
+
+Azure Blob Storage + CDN; Front Door + WAF.
+
+Azure Functions: schedulers, cert jobs, similarity jobs.
+
+API Management, Key Vault, App Config, Application Insights.
+
+CI/CD: GitHub Actions → build/test/deploy; infra via Bicep/Terraform.
+
+Scalability: scale-out Web App/Functions; shard high-volume Mongo collections (submissions, qna).
+
+Optional-but-Now-Core Enhancements (from brief)
+
+AI Similarity Detection (embeddings + cosine similarity on extracted text/code) to flag likely plagiarism/similarity.
+
+Automated Certificates (PDF gen + share).
+
+Sponsor/Partner Showcase on event pages & org profiles.
+
+Analytics Dashboard (organizer insights).
+
+Web3 POAP/NFT Badges (opt-in).
+
+Integrated Real-Time Leaderboard (pub/sub updates).
+
+Why this architecture fits the brief
+
+It directly implements the mandatory features (event creation/management; registration/team; submissions & evaluation; real-time updates; role-based dashboards) and the required stack (Azure Database + MongoDB; Azure Web App/Functions/Storage). It also elevates the bonus features to first-class capabilities to maximize scoring on innovation and tech integration.

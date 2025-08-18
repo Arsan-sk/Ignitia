@@ -1,0 +1,255 @@
+.
+
+📝 Product Requirements Prompt (PRP)
+1. Product Name
+
+SynapLink (working title — conveys innovation + connectivity)
+
+2. One-Sentence Idea Description
+
+A dual-mode event and hackathon hosting platform that combines professional event management for organizations with a social, gamified ecosystem for students and professionals — enabling transparent competitions, dynamic team formation, global leaderboards, and long-term career recognition.
+
+3. Target Audience
+
+Universities & Colleges → to host hackathons, fests, cultural and academic events.
+
+Student Communities → to collaborate, form teams, and showcase achievements.
+
+Companies & Organizations → to host professional hackathons, challenges, and branded competitions.
+
+General Event Organizers → for conferences, meetups, and competitions beyond hackathons.
+
+4. Core User Journeys
+🔹 Organizer Flow
+
+Sign up / log in → redirected to Organizer Dashboard.
+
+Create Event (single-page dynamic form):
+
+Common fields → event type expands to show relevant fields.
+
+Hackathon: rounds, submission formats, rubrics.
+
+Conference: sessions, speakers, ticketing.
+
+Meetup: agenda, host, RSVP limit.
+
+Fest: competitions, venues, registration rules.
+
+Manage event via modular dashboard tabs:
+
+Event Info → edit details, sponsors.
+
+Teams & Registrations → view/approve participants.
+
+Submissions (per round) → dynamic built-in form builder OR external links (Google Forms, Discord).
+
+Round Management → mark teams advanced, unlock next round.
+
+Announcements & Q&A → event wall posts + threaded Q&A.
+
+Leaderboard & Results → preliminary rounds = points + advance/eliminate, final = weighted rubric → auto-ranking.
+
+Certificates → auto-generate & distribute.
+
+Analytics → track registrations, engagement, sponsor visibility.
+
+🔹 Participant Flow
+
+Sign up / log in → redirected to Participant Dashboard.
+
+Explore events:
+
+Hackathon feed & general events feed displayed separately (like Unstop/Devpost).
+
+Filter by category, mode, tags, timeline.
+
+Apply/Register:
+
+If team-based → create team + invite platform friends OR join existing team.
+
+Event-specific team identity created.
+
+Inside Event Sub-Dashboard (tabs):
+
+Event Info → rules, sponsors, timeline.
+
+Team → members list, invite, join requests.
+
+Submissions → round-based forms (active/locked).
+
+Announcements & Q&A → community wall.
+
+Leaderboard → round progression + final ranks.
+
+Certificates → download/share post-event.
+
+Long-term:
+
+Build portfolio of events, teams, wins, certificates, badges.
+
+Appear on global leaderboard and university/state rankings.
+
+🔹 Organization Flow
+
+Org signup → verified org profile (banner, logo, description).
+
+Org profile shows:
+
+Events hosted (past & upcoming).
+
+Followers.
+
+Participants engaged.
+
+Sponsors showcased.
+
+Private dashboard:
+
+Create/manage events.
+
+Announcements/posts to followers.
+
+Analytics (registrations, engagement).
+
+Public org profile → followable, searchable, acts like LinkedIn page.
+
+🔹 Social/Networking Flow
+
+Profiles (User): Banner, photo, bio, skills, badges, wins, team history, certificates.
+
+Connections:
+
+Connect (mutual) = friends/peers.
+
+Follow (one-way) = updates only.
+
+Teams: Persistent list of all past teams, acts as credibility portfolio.
+
+Discover/Search: Search users/orgs alphabetically by handle; suggested connections by university, events, friends-of-friends.
+
+Global Leaderboard: Rank all users (filters: university, state, global, friends).
+
+5. Core Features
+Mandatory (from problem statement)
+
+Event creation & management (dynamic form).
+
+Registration & team formation (invite friends / join teams).
+
+Multi-round project submission (built-in forms or external).
+
+Evaluation & progression (advance/eliminate, rubric-based final scoring).
+
+Real-time announcements & Q&A (event wall + threaded replies).
+
+Role-based dashboards (Organizer, Participant, Org).
+
+Deployment on Azure Web App with Azure SQL + MongoDB.
+
+Extended (our enhancements → hackathon-winning angle)
+
+Profiles with achievements, badges, followers, certificates.
+
+Social graph: friends, follows, suggested peers.
+
+Global Leaderboard with classification by university/state/friends.
+
+Certificates: auto-generated, downloadable, LinkedIn integration.
+
+Badges & Trophies: gamified recognition.
+
+Sponsor showcase integrated in events & org profiles.
+
+Analytics dashboards for organizers.
+
+Optional Web3 (POAP/NFT badges).
+
+AI-based similarity detection for plagiarism check.
+
+6. Tech Stack & Architecture
+Frontend
+
+Next.js / React hosted on Azure Web App.
+
+Framer Motion → animations & transitions.
+
+Lucide Icons, Heroicons, Lottie → icons, animated badges, trophies.
+
+TailwindCSS → styling with dual-mode (light professional + dark energetic).
+
+Backend
+
+Node.js (NestJS/Express) or FastAPI for API.
+
+Azure Functions for scheduled jobs (round open/close, cert generation, similarity).
+
+Azure API Management + JWT-based auth.
+
+Databases
+
+Azure SQL Database → structured (users, orgs, events, rounds, teams, scores, leaderboard, certificates).
+
+MongoDB on Azure → unstructured (submission payloads, forms schema, announcements, Q&A, analytics events).
+
+Azure Blob Storage → file uploads (PDFs, ZIPs, images).
+
+Real-Time & Notifications
+
+Azure Web PubSub → real-time announcements, Q&A, live leaderboard updates.
+
+Azure Communication Services → email/SMS notifications.
+
+7. UI/UX Vibe
+
+Dual Mode:
+
+Light = professional, LinkedIn-style.
+
+Dark = energetic, Discord/Instagram-style.
+
+Gamified UI Elements:
+
+Badges, trophies, podium animations, progress streaks.
+
+Transitions:
+
+Page/tab animations with Framer Motion.
+
+Leaderboard reveal animations.
+
+Round unlock glow effect.
+
+Consistency:
+
+Modular dashboards → clean navigation.
+
+Event sub-tabs → keep global dashboard uncluttered.
+
+8. Future Feature Ideas
+
+Skill-based matchmaking for teams.
+
+Paid ticketing + monetization for conferences/fests.
+
+In-platform content posting (like LinkedIn updates).
+
+Mentor dashboard (for guidance during hackathons).
+
+Integration with GitHub/Devpost for project sync.
+
+AI project summarizer → auto-generate project briefs.
+
+✅ Why This Wins Hackathon Judging
+
+Innovation → Not just an event tool, but a social + competitive ecosystem.
+
+Functionality → Complete workflows from event creation → leaderboard → certificates.
+
+Scalability → Designed for multiple events & thousands of users.
+
+Tech Fit → Azure SQL + MongoDB + Azure Web App/Functions (exact hackathon requirements).
+
+UI/UX → Dual-mode, gamified, full of animations → polished and engaging.
+
+Transparency → Fair evaluation, timestamped submissions, public leaderboards.
