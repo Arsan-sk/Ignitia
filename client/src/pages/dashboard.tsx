@@ -32,7 +32,12 @@ export default function Dashboard() {
     return <Redirect to="/org" />;
   }
 
-  // Participant dashboard only (organizers are redirected to /org)
+  // Redirect participants to new participant dashboard
+  if (user.role === 'participant') {
+    return <Redirect to="/participant" />;
+  }
+
+  // Legacy participant dashboard (should not be reached)
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <Navbar />

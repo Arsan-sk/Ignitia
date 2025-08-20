@@ -886,6 +886,235 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
 
+  // Participant Dashboard API Routes
+  app.get('/api/users/profile/:id', authenticateToken, async (req: AuthenticatedRequest, res) => {
+    try {
+      const userId = req.params.id;
+      
+      const db = await import('./mongodb');
+      const user = await db.User.findById(userId).select('-password');
+      
+      if (!user) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+      
+      // Get user stats
+      const [connections, badges, events, teams] = await Promise.all([
+        db.UserConnection.countDocuments({ $or: [{ followerId: userId }, { followingId: userId }] }),
+        db.Badge.find({ userId }).sort({ awardedAt: -1 }),
+        db.EventRegistration.find({ userId }).populate('eventId').sort({ registeredAt: -1 }),
+        db.TeamMember.find({ userId }).populate({
+          path: 'teamId',
+          populate: { path: 'eventId' }
+        })
+      ]);
+      
+      // Calculate stats
+      const stats = {
+        friends: connections,
+        followers: await db.UserConnection.countDocuments({ followingId: userId }),
+        following: await db.UserConnection.countDocuments({ followerId: userId }),
+        eventsParticipated: events.length,
+        wins: badges.filter(b => b.type === 'winner').length,
+        teamsWorkedWith: teams.length,
+        totalPoints: user.globalPoints,
+        rank: await storage.getUserRank(userId)
+      };
+      
+      // Get past events with performance
+      const pastEvents = events.map(reg => {
+        const event = reg.eventId;
+        return {
+          id: event._id,
+          title: event.title,
+          date: event.startAt,
+          type: event.type,
+          participants: event.maxParticipants,
+          // This would need more complex logic to calculate actual placement
+          rank: Math.floor(Math.random() * 10) + 1
+        };
+      }).filter(e => new Date(e.date) < new Date());
+      
+      res.json({
+        profile: user,
+        stats,
+        badges,
+        pastEvents,
+        teams: teams.map(tm => tm.teamId)
+      });
+      
+    } catch (error) {
+      console.error('Error getting user profile:', error);
+      res.status(500).json({ message: 'Failed to get user profile' });
+    }
+  });
+  
+  app.put('/api/users/profile/:id', authenticateToken, async (req: AuthenticatedRequest, res) => {
+    try {
+      const userId = req.params.id;
+      
+      // Ensure users can only update their own profile
+      if (req.user?.id !== userId) {
+        return res.status(403).json({ message: 'Not authorized to update this profile' });
+      }
+      
+      const allowedFields = [
+        'bio', 'location', 'website', 'github', 
+        'twitter', 'linkedin', 'phone', 'skills'
+      ];
+      
+      // Filter to only allowed fields
+      const updateData = Object.keys(req.body)
+        .filter(key => allowedFields.includes(key))
+        .reduce((obj, key) => {
+          obj[key] = req.body[key];
+          return obj;
+        }, {} as Record<string, any>);
+      
+      updateData.updatedAt = new Date();
+      
+      const db = await import('./mongodb');
+      const updatedUser = await db.User.findByIdAndUpdate(
+        userId,
+        { $set: updateData },
+        { new: true }
+      ).select('-password');
+      
+      if (!updatedUser) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+      
+      res.json(updatedUser);
+    } catch (error) {
+      console.error('Error updating user profile:', error);
+      res.status(500).json({ message: 'Failed to update profile' });
+    }
+  });
+  
+  app.get('/api/participant/dashboard/:id', authenticateToken, async (req: AuthenticatedRequest, res) => {
+    try {
+      const userId = req.params.id;
+      
+      // Ensure users can only access their own dashboard data
+      if (req.user?.id !== userId) {
+        return res.status(403).json({ message: 'Not authorized to access this dashboard' });
+      }
+      
+      const db = await import('./mongodb');
+      
+      // Get user's active events
+      const now = new Date();
+      const activeEvents = await db.EventRegistration.find({ userId })
+        .populate({
+          path: 'eventId',
+          match: { endAt: { $gte: now } }
+        })
+        .sort({ 'eventId.startAt': 1 })
+        .limit(5);
+      
+      // Filter out null eventIds (events that have ended)
+      const validActiveEvents = activeEvents.filter(reg => reg.eventId);
+      
+      // Format active events data
+      const formattedActiveEvents = validActiveEvents.map(reg => {
+        const event = reg.eventId;
+        const daysLeft = Math.ceil((new Date(event.endAt).getTime() - now.getTime()) / (1000 * 3600 * 24));
+        
+        return {
+          id: event._id,
+          title: event.title,
+          status: event.status === 'ongoing' ? 'Submission Phase' : 'Registration Open',
+          daysLeft,
+          participants: event.maxParticipants,
+          prize: event.metadata?.prize || '$5,000' // Placeholder
+        };
+      });
+      
+      // Get recent achievements (badges)
+      const recentAchievements = await db.Badge.find({ userId })
+        .sort({ awardedAt: -1 })
+        .limit(3);
+      
+      // Recent activity - could be event registrations, submissions, team joins, etc.
+      const recentActivity = [];
+      
+      // Get recent event registrations
+      const recentRegistrations = await db.EventRegistration.find({ userId })
+        .populate('eventId', 'title')
+        .sort({ registeredAt: -1 })
+        .limit(2);
+      
+      recentRegistrations.forEach(reg => {
+        recentActivity.push({
+          type: 'registration',
+          action: 'Registered for',
+          event: reg.eventId.title,
+          time: reg.registeredAt
+        });
+      });
+      
+      // Get recent team joins
+      const recentTeamJoins = await db.TeamMember.find({ userId })
+        .populate({
+          path: 'teamId',
+          populate: { path: 'eventId', select: 'title' }
+        })
+        .sort({ joinedAt: -1 })
+        .limit(2);
+      
+      recentTeamJoins.forEach(member => {
+        if (member.teamId && member.teamId.eventId) {
+          recentActivity.push({
+            type: 'team',
+            action: 'Joined team',
+            event: member.teamId.eventId.title,
+            time: member.joinedAt
+          });
+        }
+      });
+      
+      // Get recent submissions
+      const recentSubmissions = await db.Submission.find({ submittedById: userId })
+        .populate('eventId', 'title')
+        .sort({ submittedAt: -1 })
+        .limit(2);
+      
+      recentSubmissions.forEach(submission => {
+        recentActivity.push({
+          type: 'submission',
+          action: 'Submitted project',
+          event: submission.eventId.title,
+          time: submission.submittedAt
+        });
+      });
+      
+      // Sort by time, most recent first
+      recentActivity.sort((a, b) => new Date(b.time).getTime() - new Date(a.time).getTime());
+      
+      // Limit to 3 most recent activities
+      const limitedActivity = recentActivity.slice(0, 3);
+      
+      res.json({
+        activeEvents: formattedActiveEvents,
+        achievements: recentAchievements,
+        recentActivity: limitedActivity,
+        stats: {
+          eventsParticipated: await db.EventRegistration.countDocuments({ userId }),
+          wins: await db.Badge.countDocuments({ userId, type: 'winner' }),
+          friends: await db.UserConnection.countDocuments({ 
+            $or: [{ followerId: userId }, { followingId: userId }] 
+          }),
+          teamsWorkedWith: await db.TeamMember.countDocuments({ userId }),
+          totalPoints: (await db.User.findById(userId))?.globalPoints || 0,
+          rank: await storage.getUserRank(userId)
+        }
+      });
+    } catch (error) {
+      console.error('Error getting participant dashboard:', error);
+      res.status(500).json({ message: 'Failed to get dashboard data' });
+    }
+  });
+  
   // Dashboard routes
   app.get('/api/dashboard/user/:id', authenticateToken, async (req, res) => {
     try {

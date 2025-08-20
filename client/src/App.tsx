@@ -28,6 +28,14 @@ import OrgAnalytics from "@/pages/org/analytics";
 import OrgProfile from "@/pages/org/profile";
 import OrgSettings from "@/pages/org/settings";
 
+// Participant dashboard pages
+import ParticipantIndex from "@/pages/participant/index";
+import ParticipantHome from "@/pages/participant/home";
+import ParticipantEvents from "@/pages/participant/events";
+import ParticipantConnect from "@/pages/participant/connect";
+import ParticipantLeaderboard from "@/pages/participant/leaderboard";
+import ParticipantProfile from "@/pages/participant/profile";
+
 function Router() {
   return (
     <Switch>
@@ -49,6 +57,14 @@ function Router() {
       <Route path="/org/:orgId/analytics" component={OrgAnalytics} />
       <Route path="/org/:orgId/profile" component={OrgProfile} />
       <Route path="/org/:orgId/settings" component={OrgSettings} />
+      
+      {/* Participant dashboard routes */}
+      <Route path="/participant" component={ParticipantIndex} />
+      <Route path="/participant/home" component={ParticipantHome} />
+      <Route path="/participant/events" component={ParticipantEvents} />
+      <Route path="/participant/connect" component={ParticipantConnect} />
+      <Route path="/participant/leaderboard" component={ParticipantLeaderboard} />
+      <Route path="/participant/profile" component={ParticipantProfile} />
       
       {/* General routes */}
       <Route path="/events" component={Events} />
