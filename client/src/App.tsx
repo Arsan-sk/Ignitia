@@ -13,15 +13,53 @@ import Register from "@/pages/auth/register";
 import Landing from "@/pages/landing";
 import NotFound from "@/pages/not-found";
 
+// Organization dashboard pages
+import OrgIndex from "@/pages/org/index";
+import OrgHome from "@/pages/org/home";
+import OrgEvents from "@/pages/org/events";
+import OrgEventsNew from "@/pages/org/events-new";
+import EventDetails from "@/pages/org/event-details";
+import OrgSubmissions from "@/pages/org/submissions";
+import OrgJudging from "@/pages/org/judging";
+import OrgLeaderboard from "@/pages/org/leaderboard";
+import OrgParticipants from "@/pages/org/participants";
+import OrgAnnouncements from "@/pages/org/announcements";
+import OrgAnalytics from "@/pages/org/analytics";
+import OrgProfile from "@/pages/org/profile";
+import OrgSettings from "@/pages/org/settings";
+
 function Router() {
   return (
     <Switch>
       <Route path="/" component={Landing} />
       <Route path="/dashboard" component={Dashboard} />
+      
+      {/* Organization dashboard routes */}
+      <Route path="/org" component={OrgIndex} />
+      <Route path="/org/:orgId/home" component={OrgHome} />
+      <Route path="/org/:orgId/overview" component={OrgHome} /> {/* Redirect legacy route */}
+      <Route path="/org/:orgId/events" component={OrgEvents} />
+      <Route path="/org/:orgId/events/new" component={OrgEventsNew} />
+      <Route path="/org/:orgId/events/:eventId" component={EventDetails} />
+      <Route path="/org/:orgId/submissions" component={OrgSubmissions} />
+      <Route path="/org/:orgId/judging" component={OrgJudging} />
+      <Route path="/org/:orgId/leaderboard" component={OrgLeaderboard} />
+      <Route path="/org/:orgId/participants" component={OrgParticipants} />
+      <Route path="/org/:orgId/announcements" component={OrgAnnouncements} />
+      <Route path="/org/:orgId/analytics" component={OrgAnalytics} />
+      <Route path="/org/:orgId/profile" component={OrgProfile} />
+      <Route path="/org/:orgId/settings" component={OrgSettings} />
+      
+      {/* General routes */}
       <Route path="/events" component={Events} />
       <Route path="/create-event" component={CreateEvent} />
+      
+      {/* Auth routes - support both /login and /auth/login */}
       <Route path="/login" component={Login} />
+      <Route path="/auth/login" component={Login} />
       <Route path="/register" component={Register} />
+      <Route path="/auth/register" component={Register} />
+      
       <Route component={NotFound} />
     </Switch>
   );

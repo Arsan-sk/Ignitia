@@ -2,7 +2,15 @@ const TOKEN_KEY = "ignitia_auth_token";
 
 export function getAuthToken(): string | null {
   if (typeof window === "undefined") return null;
-  return localStorage.getItem(TOKEN_KEY);
+  const token = localStorage.getItem(TOKEN_KEY);
+  
+  // Check if token is expired and remove it if so
+  if (token && isTokenExpired(token)) {
+    removeAuthToken();
+    return null;
+  }
+  
+  return token;
 }
 
 export function setAuthToken(token: string): void {

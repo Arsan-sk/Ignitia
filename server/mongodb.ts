@@ -54,9 +54,17 @@ const organizationSchema = new mongoose.Schema({
   logoUrl: { type: String },
   bannerUrl: { type: String },
   website: { type: String },
+  email: { type: String },
+  location: { type: String },
+  twitter: { type: String },
+  linkedin: { type: String },
+  instagram: { type: String },
+  github: { type: String },
+  mission: { type: String },
   isVerified: { type: Boolean, default: false },
   createdById: { type: String, required: true, ref: 'User' },
-  createdAt: { type: Date, default: Date.now }
+  createdAt: { type: Date, default: Date.now },
+  updatedAt: { type: Date, default: Date.now }
 });
 
 const eventSchema = new mongoose.Schema({

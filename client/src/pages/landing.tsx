@@ -11,11 +11,32 @@ import { useTheme } from "@/components/theme-provider";
 import { Sun, Moon } from "lucide-react";
 
 export default function Landing() {
-  const { user } = useAuth();
+  const { user, isLoading } = useAuth();
   const { theme, toggleTheme } = useTheme();
 
-  if (user) {
-    return <Link href="/dashboard" replace />;
+  // Show loading state while auth is being determined
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-purple-900 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-12 h-12 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center mx-auto mb-4 animate-pulse">
+            <Flame className="w-6 h-6 text-white" />
+          </div>
+          <div className="text-xl font-semibold text-gray-600 dark:text-gray-300">Loading...</div>
+        </div>
+      </div>
+    );
+  }
+
+  // Redirect authenticated users based on their role
+  if (user && user.id && user.role) {
+    // Use React Router navigation instead of window.location for better state management
+    if (user.role === 'organizer') {
+      window.location.replace("/org");
+    } else {
+      window.location.replace("/dashboard");
+    }
+    return null;
   }
 
   return (

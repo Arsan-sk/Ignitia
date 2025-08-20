@@ -1,4 +1,5 @@
 import { QueryClient, QueryFunction } from "@tanstack/react-query";
+import { getAuthHeaders } from "./auth";
 
 async function throwIfResNotOk(res: Response) {
   if (!res.ok) {
@@ -14,7 +15,10 @@ export async function apiRequest(
 ): Promise<Response> {
   const res = await fetch(url, {
     method,
-    headers: data ? { "Content-Type": "application/json" } : {},
+    headers: {
+      ...(data ? { "Content-Type": "application/json" } : {}),
+      ...getAuthHeaders(),
+    },
     body: data ? JSON.stringify(data) : undefined,
     credentials: "include",
   });
@@ -29,8 +33,31 @@ export const getQueryFn: <T>(options: {
 }) => QueryFunction<T> =
   ({ on401: unauthorizedBehavior }) =>
   async ({ queryKey }) => {
-    const res = await fetch(queryKey.join("/") as string, {
+    // Construct URL properly handling query parameters
+    let url: string;
+    if (queryKey.length > 1 && typeof queryKey[queryKey.length - 1] === 'object') {
+      // Last element is query parameters object
+      const queryParams = queryKey[queryKey.length - 1] as Record<string, any>;
+      const baseUrl = queryKey.slice(0, -1).join("/");
+      const params = new URLSearchParams();
+      
+      // Add non-empty query parameters
+      Object.entries(queryParams).forEach(([key, value]) => {
+        if (value && value !== 'all' && value !== '') {
+          params.append(key, String(value));
+        }
+      });
+      
+      url = params.toString() ? `${baseUrl}?${params.toString()}` : baseUrl;
+    } else {
+      url = queryKey.join("/");
+    }
+    
+    const res = await fetch(url, {
       credentials: "include",
+      headers: {
+        ...getAuthHeaders(),
+      },
     });
 
     if (unauthorizedBehavior === "returnNull" && res.status === 401) {

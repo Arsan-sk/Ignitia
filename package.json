@@ -14,7 +14,8 @@
     "mongodb:check": "node check-mongodb-credentials.js",
     "mongodb:setup": "node setup-mongodb.js",
     "mongodb:complete": "node mongodb-complete-setup.js",
-    "mongodb:test": "node test-connection.js"
+    "mongodb:test": "node test-connection.js",
+    "seed:users": "tsx scripts/seed-users.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",

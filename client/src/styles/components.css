@@ -1,0 +1,163 @@
+/* Professional Component Styles */
+
+/* Card Styles */
+.card-professional {
+  @apply border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 rounded-lg shadow-sm;
+}
+
+.card-professional:hover {
+  @apply shadow-md;
+  transition: box-shadow 0.2s ease-in-out;
+}
+
+.card-header-professional {
+  @apply px-6 py-4 border-b border-gray-100 dark:border-gray-800;
+}
+
+.card-content-professional {
+  @apply px-6 py-4;
+}
+
+/* Table Styles */
+.table-professional {
+  @apply w-full border-collapse;
+}
+
+.table-professional th {
+  @apply px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider bg-gray-50 dark:bg-gray-800/50 border-b border-gray-200 dark:border-gray-700;
+}
+
+.table-professional td {
+  @apply px-4 py-3 text-sm text-gray-900 dark:text-gray-100 border-b border-gray-100 dark:border-gray-800;
+}
+
+.table-professional tr:hover {
+  @apply bg-gray-50 dark:bg-gray-800/50;
+  transition: background-color 0.15s ease-in-out;
+}
+
+/* Button Styles */
+.btn-primary {
+  @apply bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white;
+  transition: all 0.15s ease-in-out;
+}
+
+.btn-secondary {
+  @apply bg-gray-100 hover:bg-gray-200 active:bg-gray-300 text-gray-900 dark:bg-gray-800 dark:hover:bg-gray-700 dark:active:bg-gray-600 dark:text-gray-100;
+  transition: all 0.15s ease-in-out;
+}
+
+.btn-outline {
+  @apply border border-gray-300 dark:border-gray-700 bg-transparent hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300;
+  transition: all 0.15s ease-in-out;
+}
+
+.btn-outline:focus {
+  @apply ring-2 ring-blue-500 ring-offset-2 dark:ring-offset-gray-900;
+}
+
+/* Heading Styles */
+.heading-xl {
+  @apply text-3xl font-bold text-gray-900 dark:text-gray-100 tracking-tight;
+}
+
+.heading-lg {
+  @apply text-2xl font-semibold text-gray-900 dark:text-gray-100 tracking-tight;
+}
+
+.heading-md {
+  @apply text-xl font-semibold text-gray-900 dark:text-gray-100 tracking-tight;
+}
+
+.heading-sm {
+  @apply text-lg font-medium text-gray-900 dark:text-gray-100 tracking-tight;
+}
+
+/* Text Styles */
+.text-muted {
+  @apply text-gray-600 dark:text-gray-400;
+}
+
+.text-subtle {
+  @apply text-gray-500 dark:text-gray-500;
+}
+
+/* Form Styles */
+.form-label {
+  @apply text-sm font-medium text-gray-700 dark:text-gray-300 mb-1;
+}
+
+.form-input {
+  @apply w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500;
+  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+.form-input:focus {
+  @apply outline-none ring-2 ring-blue-500 ring-offset-2 dark:ring-offset-gray-900 border-blue-500;
+}
+
+/* Status Badges */
+.badge-success {
+  @apply inline-flex px-2 py-1 text-xs font-medium bg-green-100 dark:bg-green-900/50 text-green-800 dark:text-green-100 rounded-full;
+}
+
+.badge-warning {
+  @apply inline-flex px-2 py-1 text-xs font-medium bg-yellow-100 dark:bg-yellow-900/50 text-yellow-800 dark:text-yellow-100 rounded-full;
+}
+
+.badge-danger {
+  @apply inline-flex px-2 py-1 text-xs font-medium bg-red-100 dark:bg-red-900/50 text-red-800 dark:text-red-100 rounded-full;
+}
+
+.badge-info {
+  @apply inline-flex px-2 py-1 text-xs font-medium bg-blue-100 dark:bg-blue-900/50 text-blue-800 dark:text-blue-100 rounded-full;
+}
+
+/* Layout Spacing */
+.section-spacing {
+  @apply py-6;
+}
+
+.container-padding {
+  @apply px-4 sm:px-6 lg:px-8;
+}
+
+/* Interactive States */
+.interactive:hover {
+  @apply bg-gray-50 dark:bg-gray-800/50;
+  transition: background-color 0.15s ease-in-out;
+}
+
+.interactive:active {
+  @apply bg-gray-100 dark:bg-gray-800;
+}
+
+/* Focus States */
+.focus-ring:focus {
+  @apply outline-none ring-2 ring-blue-500 ring-offset-2 dark:ring-offset-gray-900;
+}
+
+/* Divider */
+.divider {
+  @apply border-t border-gray-200 dark:border-gray-800;
+}
+
+/* Shadows */
+.shadow-professional {
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+}
+
+.shadow-professional-lg {
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+/* Dark mode shadow adjustments */
+@media (prefers-color-scheme: dark) {
+  .shadow-professional {
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.3), 0 1px 2px 0 rgba(0, 0, 0, 0.2);
+  }
+  
+  .shadow-professional-lg {
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.2);
+  }
+}

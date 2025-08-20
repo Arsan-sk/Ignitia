@@ -27,9 +27,17 @@ export default function Dashboard() {
     return <Redirect to="/login" />;
   }
 
-  // Role-based dashboard rendering
-  const renderParticipantDashboard = () => (
-    <div className="max-w-7xl mx-auto p-6 space-y-8">
+  // Redirect organizers to their organization dashboard
+  if (user.role === 'organizer') {
+    return <Redirect to="/org" />;
+  }
+
+  // Participant dashboard only (organizers are redirected to /org)
+  return (
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      <Navbar />
+      <main>
+        <div className="max-w-7xl mx-auto p-6 space-y-8">
       {/* Welcome Section */}
       <div className="bg-gradient-to-r from-blue-600 via-purple-600 to-teal-600 rounded-2xl p-8 text-white">
         <div className="flex items-center justify-between">
@@ -167,163 +175,7 @@ export default function Dashboard() {
           </Card>
         </div>
       </div>
-    </div>
-  );
-
-  const renderOrganizerDashboard = () => (
-    <div className="max-w-7xl mx-auto p-6 space-y-8">
-      {/* Welcome Section */}
-      <div className="bg-gradient-to-r from-purple-600 via-blue-600 to-teal-600 rounded-2xl p-8 text-white">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold mb-2">
-              Hello {user.firstName}! 🚀
-            </h1>
-            <p className="text-purple-100 text-lg">
-              Manage your events and engage with your community.
-            </p>
-          </div>
-          <Link href="/create-event">
-            <Button className="bg-white text-purple-600 hover:bg-gray-100">
-              <Plus className="w-4 h-4 mr-2" />
-              Create Event
-            </Button>
-          </Link>
         </div>
-      </div>
-
-      <div className="grid lg:grid-cols-3 gap-8">
-        {/* Main Content */}
-        <div className="lg:col-span-2 space-y-6">
-          {/* Quick Stats */}
-          <div className="grid md:grid-cols-3 gap-6">
-            <Card>
-              <CardContent className="p-6 text-center">
-                <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-lg flex items-center justify-center mx-auto mb-3">
-                  <Calendar className="w-6 h-6 text-white" />
-                </div>
-                <div className="text-2xl font-bold mb-1">5</div>
-                <div className="text-gray-500 text-sm">Active Events</div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardContent className="p-6 text-center">
-                <div className="w-12 h-12 bg-gradient-to-r from-green-500 to-teal-500 rounded-lg flex items-center justify-center mx-auto mb-3">
-                  <Users className="w-6 h-6 text-white" />
-                </div>
-                <div className="text-2xl font-bold mb-1">847</div>
-                <div className="text-gray-500 text-sm">Total Participants</div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardContent className="p-6 text-center">
-                <div className="w-12 h-12 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg flex items-center justify-center mx-auto mb-3">
-                  <TrendingUp className="w-6 h-6 text-white" />
-                </div>
-                <div className="text-2xl font-bold mb-1">94%</div>
-                <div className="text-gray-500 text-sm">Success Rate</div>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* My Events */}
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between">
-              <CardTitle className="flex items-center space-x-2">
-                <Target className="w-5 h-5" />
-                <span>Your Events</span>
-              </CardTitle>
-              <Link href="/create-event">
-                <Button className="bg-gradient-to-r from-blue-600 to-purple-600 text-white">
-                  <Plus className="w-4 h-4 mr-2" />
-                  Create New
-                </Button>
-              </Link>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {[1, 2, 3].map((i) => (
-                  <div key={i} className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800">
-                    <div className="flex items-center space-x-4">
-                      <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-500 rounded-lg flex items-center justify-center">
-                        <Zap className="w-5 h-5 text-white" />
-                      </div>
-                      <div>
-                        <h4 className="font-medium">Innovation Challenge {i}</h4>
-                        <div className="flex items-center space-x-4 text-sm text-gray-500">
-                          <span className="flex items-center space-x-1">
-                            <Users className="w-4 h-4" />
-                            <span>124 participants</span>
-                          </span>
-                          <span className="flex items-center space-x-1">
-                            <Clock className="w-4 h-4" />
-                            <span>5 days left</span>
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                    <Button variant="outline" size="sm">Manage</Button>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Sidebar */}
-        <div className="space-y-6">
-          {/* Recent Activity */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg flex items-center space-x-2">
-                <Activity className="w-5 h-5" />
-                <span>Recent Activity</span>
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                {['New registration for TechFest', 'Submission deadline approaching', 'Team formed for Challenge 2'].map((activity, i) => (
-                  <div key={i} className="text-sm">
-                    <div className="font-medium">{activity}</div>
-                    <div className="text-gray-500">2 hours ago</div>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Quick Tools */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Quick Tools</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <Button variant="outline" className="w-full justify-start">
-                <BookOpen className="w-4 h-4 mr-2" />
-                Analytics
-              </Button>
-              <Button variant="outline" className="w-full justify-start">
-                <Award className="w-4 h-4 mr-2" />
-                Certificates
-              </Button>
-              <Button variant="outline" className="w-full justify-start">
-                <Users className="w-4 h-4 mr-2" />
-                Manage Teams
-              </Button>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
-    </div>
-  );
-
-  return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      <Navbar />
-      <main>
-        {user.role === 'organizer' ? renderOrganizerDashboard() : renderParticipantDashboard()}
       </main>
     </div>
   );

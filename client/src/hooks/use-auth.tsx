@@ -44,7 +44,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (error && getAuthToken()) {
       removeAuthToken();
-      queryClient.invalidateQueries({ queryKey: ['/api/auth/me'] });
+      queryClient.clear(); // Clear all cached data when auth fails
     }
   }, [error]);
 
@@ -84,6 +84,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     removeAuthToken();
     queryClient.setQueryData(['/api/auth/me'], null);
     queryClient.clear();
+    // Force a page reload to ensure complete state reset
+    window.location.href = '/';
   };
 
   const isLoading = !isInitialized || userLoading || loginMutation.isPending || registerMutation.isPending;
