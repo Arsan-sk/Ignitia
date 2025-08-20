@@ -39,43 +39,40 @@ export default function ParticipantHome() {
     return <Redirect to="/org" />;
   }
 
-  // Use data from API
-  const { data: participantDashboard, isLoading: isDashboardLoading } = useQuery({
-    queryKey: [`/api/dashboard/participant/${user?.id}`],
-    enabled: !!user?.id
-  });
-
+  // Mock data - will be replaced with real API data
   const stats = {
-    eventsParticipated: dashboardData?.events?.length || participantDashboard?.stats?.eventsParticipated || 0,
-    wins: dashboardData?.wins || participantDashboard?.stats?.wins || 0,
-    friends: dashboardData?.friends || participantDashboard?.stats?.friends || 0,
-    teamsWorkedWith: dashboardData?.teams?.length || participantDashboard?.stats?.teamsWorkedWith || 0,
-    totalPoints: dashboardData?.totalPoints || participantDashboard?.stats?.totalPoints || 0,
-    rank: dashboardData?.rank || participantDashboard?.stats?.rank || 0
+    eventsParticipated: dashboardData?.events?.length || 5,
+    wins: dashboardData?.wins || 2,
+    friends: dashboardData?.friends || 23,
+    teamsWorkedWith: dashboardData?.teams?.length || 8,
+    totalPoints: dashboardData?.totalPoints || 1250,
+    rank: dashboardData?.rank || 127
   };
 
-  const activeEvents = participantDashboard?.activeEvents || [];
-  const achievements = participantDashboard?.achievements || [];
-  
-  // Map badge types to icons
-  const getBadgeIcon = (type) => {
-    switch(type) {
-      case 'winner': return Trophy;
-      case 'team': return Users;
-      case 'innovation': return Zap;
-      default: return Award;
+  const activeEvents = dashboardData?.activeEvents || [
+    {
+      id: 1,
+      title: "TechCrunch Hackathon 2024",
+      status: "Registration Open",
+      daysLeft: 5,
+      participants: 234,
+      prize: "$10,000"
+    },
+    {
+      id: 2,
+      title: "AI Innovation Challenge",
+      status: "Submission Phase",
+      daysLeft: 12,
+      participants: 156,
+      prize: "$25,000"
     }
-  };
-  
-  // Map badge types to colors
-  const getBadgeColor = (type) => {
-    switch(type) {
-      case 'winner': return "from-yellow-400 to-orange-500";
-      case 'team': return "from-blue-400 to-purple-500";
-      case 'innovation': return "from-green-400 to-teal-500";
-      default: return "from-purple-400 to-indigo-500";
-    }
-  };
+  ];
+
+  const achievements = dashboardData?.achievements || [
+    { id: 1, title: "First Place Winner", icon: Trophy, color: "from-yellow-400 to-orange-500" },
+    { id: 2, title: "Team Player", icon: Users, color: "from-blue-400 to-purple-500" },
+    { id: 3, title: "Innovation Master", icon: Zap, color: "from-green-400 to-teal-500" }
+  ];
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
@@ -192,7 +189,7 @@ export default function ParticipantHome() {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
-                    {activeEvents.length > 0 ? activeEvents.map((event) => (
+                    {activeEvents.map((event) => (
                       <div key={event.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors group">
                         <div className="flex items-center space-x-4">
                           <div className="w-12 h-12 bg-gradient-to-r from-green-500 to-teal-500 rounded-lg flex items-center justify-center">
@@ -222,16 +219,7 @@ export default function ParticipantHome() {
                           <ChevronRight className="w-5 h-5 text-gray-400 mt-1 mx-auto" />
                         </div>
                       </div>
-                    )) : (
-                      <div className="text-center py-8">
-                        <Calendar className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-                        <h4 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">No Active Events</h4>
-                        <p className="text-gray-500 mb-4">You haven't registered for any events yet.</p>
-                        <Button className="bg-blue-600 hover:bg-blue-700 text-white" asChild>
-                          <Link href="/participant/events">Discover Events</Link>
-                        </Button>
-                      </div>
-                    )}
+                    ))}
                   </div>
                 </CardContent>
               </Card>
@@ -275,38 +263,28 @@ export default function ParticipantHome() {
             <div className="space-y-6">
               {/* Achievements */}
               <Card>
-                <CardHeader className="flex flex-row items-center justify-between">
+                <CardHeader>
                   <CardTitle className="text-lg flex items-center space-x-2">
                     <Award className="w-5 h-5" />
                     <span>Recent Achievements</span>
                   </CardTitle>
-                  <Link href="/participant/profile">
-                    <Button variant="outline" size="sm">View All</Button>
-                  </Link>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-3">
-                    {achievements.length > 0 ? achievements.map((achievement) => {
-                      const Icon = getBadgeIcon(achievement.type);
-                      const colorClass = getBadgeColor(achievement.type);
+                    {achievements.map((achievement) => {
+                      const Icon = achievement.icon;
                       return (
-                        <div key={achievement._id || achievement.id} className="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
-                          <div className={`w-10 h-10 bg-gradient-to-r ${colorClass} rounded-full flex items-center justify-center`}>
+                        <div key={achievement.id} className="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+                          <div className={`w-10 h-10 bg-gradient-to-r ${achievement.color} rounded-full flex items-center justify-center`}>
                             <Icon className="w-5 h-5 text-white" />
                           </div>
                           <div>
-                            <span className="text-sm font-medium">{achievement.title || achievement.name}</span>
-                            <p className="text-xs text-gray-500">Awarded {new Date(achievement.awardedAt).toLocaleDateString()}</p>
+                            <span className="text-sm font-medium">{achievement.title}</span>
+                            <p className="text-xs text-gray-500">Earned recently</p>
                           </div>
                         </div>
                       );
-                    }) : (
-                      <div className="text-center py-8">
-                        <Trophy className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-                        <h4 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">No Achievements Yet</h4>
-                        <p className="text-gray-500 mb-4">Participate in events to earn badges and achievements.</p>
-                      </div>
-                    )}
+                    })}
                   </div>
                   <Link href="/participant/profile">
                     <Button variant="outline" size="sm" className="w-full mt-4">View All Badges</Button>

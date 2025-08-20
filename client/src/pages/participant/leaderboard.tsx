@@ -7,30 +7,13 @@ import Navbar from "@/components/layout/navbar";
 import ParticipantTabs from "@/components/layout/participant-tabs";
 import { 
   Trophy, Medal, Star, TrendingUp, Users, 
-  Calendar, Target, Award, Crown, Zap, RefreshCw
+  Calendar, Target, Award, Crown, Zap
 } from "lucide-react";
-import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
 
 export default function ParticipantLeaderboard() {
   const { user, isLoading: authLoading } = useAuth();
-  const [timeframe, setTimeframe] = useState<'all' | 'month' | 'week'>('all');
 
-  // Fetch leaderboard data
-  const { data: leaderboardData, isLoading, error, refetch } = useQuery({
-    queryKey: ['/api/leaderboard', timeframe],
-    queryFn: async () => {
-      const response = await fetch(`/api/leaderboard?timeframe=${timeframe}`);
-      if (!response.ok) {
-        throw new Error('Failed to fetch leaderboard data');
-      }
-      return response.json();
-    },
-    enabled: !!user,
-    staleTime: 5 * 60 * 1000, // 5 minutes
-  });
-
-  if (authLoading || isLoading) {
+  if (authLoading) {
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
         <div className="text-center">
@@ -48,9 +31,9 @@ export default function ParticipantLeaderboard() {
   if (user.role !== 'participant') {
     return <Redirect to="/org" />;
   }
-  
-  // Process leaderboard data or use fallback if API fails
-  const processedLeaderboardData = leaderboardData || [
+
+  // Mock data - will be replaced with real API data
+  const leaderboardData = [
     {
       rank: 1,
       name: "Alex Chen",
@@ -161,15 +144,15 @@ export default function ParticipantLeaderboard() {
     }
   ];
 
-  const topPerformers = processedLeaderboardData.slice(0, 3);
-  const otherRanks = processedLeaderboardData.slice(3, 8);
-  const currentUserRank = processedLeaderboardData.find(user => user.isCurrentUser);
+  const topPerformers = leaderboardData.slice(0, 3);
+  const otherRanks = leaderboardData.slice(3, 8);
+  const currentUserRank = leaderboardData.find(user => user.isCurrentUser);
 
-  // Timeframe options for filtering
-  const timeframeOptions = [
-    { id: 'all', label: 'All Time', value: 'all' },
-    { id: 'month', label: 'This Month', value: 'month' },
-    { id: 'week', label: 'This Week', value: 'week' }
+  const categories = [
+    { id: 'global', label: 'Global', active: true },
+    { id: 'friends', label: 'Friends', active: false },
+    { id: 'monthly', label: 'This Month', active: false },
+    { id: 'events', label: 'Event Wins', active: false }
   ];
 
   return (
@@ -188,35 +171,19 @@ export default function ParticipantLeaderboard() {
             </p>
           </div>
 
-          {/* Timeframe Filter */}
+          {/* Categories */}
           <div className="mb-8">
-            <div className="flex flex-wrap gap-2 items-center">
-              <span className="text-sm font-medium text-gray-700 dark:text-gray-300 mr-2">Timeframe:</span>
-              {timeframeOptions.map((option) => (
+            <div className="flex flex-wrap gap-2">
+              {categories.map((category) => (
                 <Badge 
-                  key={option.id}
-                  variant={timeframe === option.value ? 'default' : 'outline'}
+                  key={category.id}
+                  variant={category.active ? 'default' : 'outline'}
                   className="cursor-pointer hover:bg-blue-50 dark:hover:bg-blue-900 px-4 py-2"
-                  onClick={() => setTimeframe(option.value as 'all' | 'month' | 'week')}
                 >
-                  {option.label}
+                  {category.label}
                 </Badge>
               ))}
-              <Button 
-                variant="ghost" 
-                size="icon" 
-                className="ml-2" 
-                onClick={() => refetch()}
-                title="Refresh leaderboard"
-              >
-                <RefreshCw className="h-4 w-4" />
-              </Button>
             </div>
-            {error && (
-              <div className="mt-2 text-sm text-red-500">
-                Error loading leaderboard data. Please try again.
-              </div>
-            )}
           </div>
 
           <div className="grid lg:grid-cols-3 gap-8">
@@ -367,15 +334,15 @@ export default function ParticipantLeaderboard() {
               </Card>
 
               {/* Your Rank */}
-              <Card className="border-blue-200 dark:border-blue-800 bg-blue-50/50 dark:bg-blue-900/20">
-                <CardHeader>
-                  <CardTitle className="flex items-center space-x-2 text-blue-700 dark:text-blue-300">
-                    <Target className="w-5 h-5" />
-                    <span>Your Position</span>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  {currentUserRank ? (
+              {currentUserRank && (
+                <Card className="border-blue-200 dark:border-blue-800 bg-blue-50/50 dark:bg-blue-900/20">
+                  <CardHeader>
+                    <CardTitle className="flex items-center space-x-2 text-blue-700 dark:text-blue-300">
+                      <Target className="w-5 h-5" />
+                      <span>Your Position</span>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
                     <div className="flex items-center space-x-4 p-4 rounded-lg bg-white dark:bg-gray-800 border border-blue-200 dark:border-blue-700">
                       {/* Rank */}
                       <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white font-bold">
@@ -430,24 +397,9 @@ export default function ParticipantLeaderboard() {
                         <div className="text-xs text-gray-500">{currentUserRank.eventsWon} wins</div>
                       </div>
                     </div>
-                  ) : (
-                    <div className="p-6 text-center">
-                      <div className="w-16 h-16 bg-gray-200 dark:bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <Users className="w-8 h-8 text-gray-400" />
-                      </div>
-                      <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
-                        Not Ranked Yet
-                      </h3>
-                      <p className="text-gray-500 mb-4">
-                        Participate in events to earn points and appear on the leaderboard!
-                      </p>
-                      <Button variant="outline" asChild>
-                        <a href="/participant/events">Find Events</a>
-                      </Button>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
+                  </CardContent>
+                </Card>
+              )}
             </div>
 
             {/* Sidebar */}
@@ -458,37 +410,29 @@ export default function ParticipantLeaderboard() {
                   <CardTitle className="text-lg">Your Progress</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  {currentUserRank ? (
-                    <>
-                      <div className="text-center p-4 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 rounded-lg">
-                        <div className="text-2xl font-bold text-blue-600">#{currentUserRank.rank}</div>
-                        <div className="text-sm text-gray-600">Current Rank</div>
-                      </div>
-                      
-                      <div className="space-y-3">
-                        <div className="flex justify-between">
-                          <span className="text-gray-600">Total Points</span>
-                          <span className="font-semibold">{currentUserRank.points.toLocaleString()}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-gray-600">Events Won</span>
-                          <span className="font-semibold">{currentUserRank.eventsWon}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-gray-600">Events Joined</span>
-                          <span className="font-semibold">{currentUserRank.eventsParticipated}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-gray-600">Win Rate</span>
-                          <span className="font-semibold">{currentUserRank.winRate}%</span>
-                        </div>
-                      </div>
-                    </>
-                  ) : (
-                    <div className="text-center p-4">
-                      <p className="text-gray-500">Participate in events to see your stats here</p>
+                  <div className="text-center p-4 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 rounded-lg">
+                    <div className="text-2xl font-bold text-blue-600">#{currentUserRank?.rank}</div>
+                    <div className="text-sm text-gray-600">Current Rank</div>
+                  </div>
+                  
+                  <div className="space-y-3">
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Total Points</span>
+                      <span className="font-semibold">{currentUserRank?.points.toLocaleString()}</span>
                     </div>
-                  )}
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Events Won</span>
+                      <span className="font-semibold">{currentUserRank?.eventsWon}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Events Joined</span>
+                      <span className="font-semibold">{currentUserRank?.eventsParticipated}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Win Rate</span>
+                      <span className="font-semibold">{currentUserRank?.winRate}%</span>
+                    </div>
+                  </div>
                 </CardContent>
               </Card>
 
@@ -501,77 +445,72 @@ export default function ParticipantLeaderboard() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  {currentUserRank ? (
-                    <>
-                      <div className="p-3 border rounded-lg">
-                        <div className="flex justify-between items-center mb-2">
-                          <span className="text-sm font-medium">Reach Top {Math.max(1, currentUserRank.rank - 10)}</span>
-                          <Badge variant="outline">{currentUserRank.rank > 10 ? 10 : currentUserRank.rank - 1} ranks</Badge>
-                        </div>
-                        <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                          <div 
-                            className="bg-blue-600 h-2 rounded-full" 
-                            style={{ width: `${Math.min(100, (1 - (currentUserRank.rank > 10 ? 10 : currentUserRank.rank - 1) / 10) * 100)}%` }}
-                          ></div>
-                        </div>
-                        <p className="text-xs text-gray-500 mt-1">Keep participating to climb the ranks!</p>
-                      </div>
-
-                      <div className="p-3 border rounded-lg">
-                        <div className="flex justify-between items-center mb-2">
-                          <span className="text-sm font-medium">{currentUserRank.eventsWon + 1} Event Wins</span>
-                          <Badge variant="outline">1 more</Badge>
-                        </div>
-                        <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                          <div 
-                            className="bg-green-600 h-2 rounded-full" 
-                            style={{ width: `${(currentUserRank.eventsWon / (currentUserRank.eventsWon + 1)) * 100}%` }}
-                          ></div>
-                        </div>
-                        <p className="text-xs text-gray-500 mt-1">Win 1 more event</p>
-                      </div>
-                    </>
-                  ) : (
-                    <div className="text-center p-4">
-                      <p className="text-gray-500">Join events to unlock milestones</p>
-                      <Button variant="outline" className="mt-4" asChild>
-                        <a href="/participant/events">Browse Events</a>
-                      </Button>
+                  <div className="p-3 border rounded-lg">
+                    <div className="flex justify-between items-center mb-2">
+                      <span className="text-sm font-medium">Reach Top 40</span>
+                      <Badge variant="outline">5 ranks</Badge>
                     </div>
-                  )}
+                    <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                      <div className="bg-blue-600 h-2 rounded-full" style={{ width: '75%' }}></div>
+                    </div>
+                    <p className="text-xs text-gray-500 mt-1">Need ~150 more points</p>
+                  </div>
+
+                  <div className="p-3 border rounded-lg">
+                    <div className="flex justify-between items-center mb-2">
+                      <span className="text-sm font-medium">5 Event Wins</span>
+                      <Badge variant="outline">1 more</Badge>
+                    </div>
+                    <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                      <div className="bg-green-600 h-2 rounded-full" style={{ width: '80%' }}></div>
+                    </div>
+                    <p className="text-xs text-gray-500 mt-1">Win 1 more event</p>
+                  </div>
+
+                  <div className="p-3 border rounded-lg">
+                    <div className="flex justify-between items-center mb-2">
+                      <span className="text-sm font-medium">3-Win Streak</span>
+                      <Badge variant="outline">2 more</Badge>
+                    </div>
+                    <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                      <div className="bg-yellow-600 h-2 rounded-full" style={{ width: '33%' }}></div>
+                    </div>
+                    <p className="text-xs text-gray-500 mt-1">Win 2 events in a row</p>
+                  </div>
                 </CardContent>
               </Card>
 
-              {/* Streak Card */}
-              {currentUserRank && (
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-lg flex items-center space-x-2">
-                      <Zap className="w-5 h-5 text-yellow-500" />
-                      <span>Current Streak</span>
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="p-3 border rounded-lg">
-                      <div className="flex justify-between items-center mb-2">
-                        <span className="text-sm font-medium">3-Win Streak</span>
-                        <Badge variant="outline">{Math.max(0, 3 - currentUserRank.streak)} more</Badge>
+              {/* Rising Stars */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg flex items-center space-x-2">
+                    <TrendingUp className="w-5 h-5" />
+                    <span>Rising Stars</span>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    {[
+                      { name: "Anna Kim", rank: 12, change: +8, avatar: "AK" },
+                      { name: "David Lee", rank: 18, change: +6, avatar: "DL" },
+                      { name: "Rachel Chen", rank: 25, change: +5, avatar: "RC" }
+                    ].map((person, i) => (
+                      <div key={i} className="flex items-center space-x-3">
+                        <div className="w-8 h-8 bg-gradient-to-r from-green-500 to-teal-500 rounded-full flex items-center justify-center text-white text-xs font-bold">
+                          {person.avatar}
+                        </div>
+                        <div className="flex-1">
+                          <p className="text-sm font-medium">{person.name}</p>
+                          <p className="text-xs text-gray-500">Rank #{person.rank}</p>
+                        </div>
+                        <Badge className="bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100">
+                          +{person.change}
+                        </Badge>
                       </div>
-                      <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                        <div 
-                          className="bg-yellow-600 h-2 rounded-full" 
-                          style={{ width: `${(currentUserRank.streak / 3) * 100}%` }}
-                        ></div>
-                      </div>
-                      <p className="text-xs text-gray-500 mt-1">
-                        {currentUserRank.streak > 0 
-                          ? `Current streak: ${currentUserRank.streak}. Win ${Math.max(0, 3 - currentUserRank.streak)} more in a row!` 
-                          : 'Start your winning streak!'}
-                      </p>
-                    </div>
-                  </CardContent>
-                </Card>
-              )}
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
             </div>
           </div>
         </div>
